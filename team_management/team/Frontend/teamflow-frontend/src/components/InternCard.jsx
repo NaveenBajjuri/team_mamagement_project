@@ -3,7 +3,9 @@ import { Mail, User, CircleCheck, CircleAlert, Eye, BadgeCheck } from "lucide-re
 export default function InternCard({ intern, onView = () => {} }) {
 
   /* ⭐ FIXED ASSIGNED LOGIC (DO NOT TOUCH UI) */
-  const assigned = intern.team_lead_id !== null || intern.teamlead;
+  const assigned = !!intern.teamlead;
+
+  
 
   return (
     <div className="group bg-[#1f1b36] rounded-2xl p-6 border border-white/5 hover:border-[#6c5ce7]/30 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(108,92,231,0.15)] relative overflow-hidden">
@@ -51,8 +53,11 @@ export default function InternCard({ intern, onView = () => {} }) {
           <User size={16} className="text-[#6c5ce7]" />
         </div>
         <p className="text-gray-300 text-sm">
-          Team Lead: <span className="font-medium text-white">{intern.teamlead || "Not Assigned"}</span>
+         Team Lead: <span className="font-medium text-white">
+  {intern.teamlead || "Not Assigned"}
+</span>
         </p>
+        
       </div>
 
       <button

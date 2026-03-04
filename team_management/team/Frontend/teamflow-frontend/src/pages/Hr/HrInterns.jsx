@@ -16,10 +16,10 @@ export default function HrInterns() {
     fetch();
   }, []);
 
-  /* ⭐ FILTER LOGIC */
+  /* ⭐ FIXED FILTER LOGIC (USE teamlead NOT team_lead_id) */
   const filtered = interns.filter((i) => {
-    if (filter === "ASSIGNED") return i.team_lead_id;
-    if (filter === "UNASSIGNED") return !i.team_lead_id;
+    if (filter === "ASSIGNED") return !!i.teamlead;
+    if (filter === "UNASSIGNED") return !i.teamlead;
     return true;
   });
 
@@ -46,12 +46,12 @@ export default function HrInterns() {
             onClick={() => setFilter("ALL")}
           />
           <FilterBtn
-            text={`Assigned (${interns.filter((i) => i.team_lead_id).length})`}
+            text={`Assigned (${interns.filter((i) => i.teamlead).length})`}
             active={filter === "ASSIGNED"}
             onClick={() => setFilter("ASSIGNED")}
           />
           <FilterBtn
-            text={`Unassigned (${interns.filter((i) => !i.team_lead_id).length})`}
+            text={`Unassigned (${interns.filter((i) => !i.teamlead).length})`}
             active={filter === "UNASSIGNED"}
             onClick={() => setFilter("UNASSIGNED")}
           />
@@ -94,7 +94,7 @@ export default function HrInterns() {
         )}
       </div>
 
-      {/* ⭐ ENHANCED MODAL - will be handled in InternDetailsModal component */}
+      {/* ⭐ MODAL */}
       <InternDetailsModal
         intern={selectedIntern}
         onClose={() => setSelectedIntern(null)}
@@ -120,12 +120,14 @@ function FilterBtn({ text, active, onClick }) {
 
       {/* Button text with count */}
       <span className="relative z-10 flex items-center gap-1">
-        {text.split('(')[0]}
-        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-          active 
-            ? "bg-white/20" 
-            : "bg-[#2c274b] group-hover/btn:bg-[#1f1b36]"
-        } transition-colors duration-300`}>
+        {text.split("(")[0]}
+        <span
+          className={`text-xs px-1.5 py-0.5 rounded-full ${
+            active
+              ? "bg-white/20"
+              : "bg-[#2c274b] group-hover/btn:bg-[#1f1b36]"
+          } transition-colors duration-300`}
+        >
           {text.match(/\((\d+)\)/)?.[1]}
         </span>
       </span>

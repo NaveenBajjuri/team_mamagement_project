@@ -182,8 +182,35 @@ export default function InternDashboard() {
               </div>
             ))}
           </div>
+          
         )}
       </div>
+      {/* ⭐ TEAM LEAD SECTION — ADDED ONLY */}
+<div className="bg-[#1f1b36] p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-all duration-300 shadow-lg hover:shadow-xl">
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-lg font-semibold flex items-center gap-2">
+      <span className="w-1 h-6 bg-[#8b7cf6] rounded-full"></span>
+      My Team Lead
+    </h2>
+  </div>
+
+  {!data.teamLead ? (
+    <div className="flex flex-col items-center justify-center py-12 text-gray-400 bg-white/5 rounded-xl">
+      <User className="w-12 h-12 mb-3 opacity-50" />
+      <p>No Team Lead Assigned</p>
+    </div>
+  ) : (
+    <div className="group bg-[#2c274b] p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#322d52] transition-all duration-300 hover:shadow-lg border border-transparent hover:border-white/5">
+      <div>
+        <p className="font-semibold text-lg">{data.teamLead.name}</p>
+        <p className="text-xs text-gray-400 mt-1">
+          {data.teamLead.email}
+        </p>
+      </div>
+
+    </div>
+  )}
+</div>
     </div>
   );
 }
@@ -209,5 +236,6 @@ function Card({ icon, title, value }) {
         <div className="h-full w-2/3 bg-[#8b7cf6]/20 rounded-full group-hover:w-full transition-all duration-700"></div>
       </div>
     </div>
+    
   );
 }

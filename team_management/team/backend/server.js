@@ -30,6 +30,10 @@ const PORT = process.env.PORT || 5000;
 ======================= */
 app.use(
   "/uploads",
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true
+  }),
   express.static(path.join(process.cwd(), "uploads"))
 );
 

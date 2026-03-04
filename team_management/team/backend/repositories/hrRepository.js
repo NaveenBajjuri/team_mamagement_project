@@ -16,6 +16,29 @@ export const insertIntern = (name, email, hash) =>
   );
 
 /* =========================
+   ✅ FETCH ALL INTERNS (FIXED)
+   WITH TEAM LEAD NAME
+========================= */
+export const fetchAllInterns = () =>
+  pool.query(
+    `
+    SELECT 
+      i.id,
+      i.name,
+      i.email,
+      i.created_at,
+      i.team_lead_id,
+      tl.name AS teamlead
+    FROM users i
+    LEFT JOIN users tl
+      ON i.team_lead_id = tl.id
+      AND tl.role = $2
+    WHERE i.role = $1
+    ORDER BY i.name
+    `,
+    [ROLES.INTERN, ROLES.TEAM_LEAD]
+  );
+/* =========================
    ASSIGN INTERN
 ========================= */
 export const findInternById = (id) =>
@@ -37,8 +60,7 @@ export const updateInternTeamLead = (teamLeadId, internId) =>
   ]);
 
 /* =========================
-   TEAM LEADS ANALYTICS (NEW FIX)
-   SAME STRUCTURE AS CEO
+   TEAM LEADS ANALYTICS
 ========================= */
 export const getTeamLeadsAnalytics = () =>
   pool.query(
@@ -150,7 +172,7 @@ export const getLateSubmissionTracking = () =>
   );
 
 /* =========================
-   WEEKLY SUBMISSIONS (MONTH BASED, DYNAMIC)
+   WEEKLY SUBMISSIONS
 ========================= */
 export const getWeeklySubmissions = () =>
   pool.query(`

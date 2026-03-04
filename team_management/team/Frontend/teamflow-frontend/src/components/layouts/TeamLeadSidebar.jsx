@@ -4,7 +4,8 @@ import {
   PlusSquare,
   FileText,
   Bell,
-  LogOut
+  LogOut,
+  Users   // ✅ Added icon
 } from "lucide-react";
 
 export default function TeamLeadSidebar(){
@@ -20,6 +21,10 @@ export default function TeamLeadSidebar(){
           <MenuItem icon={<LayoutDashboard/>} text="Dashboard" to="/teamlead"/>
           <MenuItem icon={<PlusSquare/>} text="Create Project" to="/teamlead/create-project"/>
           <MenuItem icon={<FileText/>} text="Review Submissions" to="/teamlead/review"/>
+
+          {/* ✅ NEW INTERNS BUTTON */}
+          <MenuItem icon={<Users/>} text="Interns" to="/teamlead/interns"/>
+
           <MenuItem icon={<Bell/>} text="Notifications" to="/teamlead/notifications"/>
         </nav>
       </div>

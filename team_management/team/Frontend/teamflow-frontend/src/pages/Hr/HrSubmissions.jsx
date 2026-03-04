@@ -26,21 +26,19 @@ export default function HrSubmissions() {
     d ? new Date(d).toLocaleDateString("en-GB") : "—";
 
   const preview = async (file) => {
-  if (!file) return;
+  if (!file || file === "null" || file === "undefined") return;
 
   try {
     const cleaned = file.replace(/^uploads\//, "");
 
-    const token = localStorage.getItem("token");
-
     const response = await fetch(
-      `http://localhost:5000/uploads/${cleaned}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+      `http://localhost:5000/uploads/${cleaned}`
     );
+
+    if (!response.ok) {
+      console.error("Preview failed:", response.status);
+      return;
+    }
 
     const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);
@@ -52,21 +50,37 @@ export default function HrSubmissions() {
   }
 };
 
-  const download = async (file) => {
-    if (!file) return;
+const download = async (file) => {
+  if (!file || file === "null" || file === "undefined") return;
 
-    const response = await fetch(`http://localhost:5000/uploads/${file}`);
+  try {
+    const cleaned = file.replace(/^uploads\//, "");
+
+    const response = await fetch(
+      `http://localhost:5000/uploads/${cleaned}`
+    );
+
+    if (!response.ok) {
+      console.error("Download failed:", response.status);
+      return;
+    }
+
     const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+    const blobUrl = window.URL.createObjectURL(blob);
 
     const link = document.createElement("a");
-    link.href = url;
-    link.download = file;
+    link.href = blobUrl;
+    link.download = cleaned;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
-    window.URL.revokeObjectURL(url);
-  };
+    window.URL.revokeObjectURL(blobUrl);
 
+  } catch (err) {
+    console.error("Download failed:", err);
+  }
+};
   return (
     <div className="space-y-8 animate-fadeIn">
 

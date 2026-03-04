@@ -20,13 +20,20 @@ export default function InternDetailsModal({ intern, onClose, onDeleted }) {
   if (!intern) return null;
 
   const assign = async () => {
-    await api.put("/ceo/assign-teamlead", {
+  try {
+    const role = localStorage.getItem("role")?.toLowerCase();
+
+    await api.put(`/${role}/assign-teamlead`, {
       internId: intern.id,
       teamLeadId: selectedTL,
     });
+
     onDeleted();
     onClose();
-  };
+  } catch (err) {
+    console.error("Failed to assign team lead", err);
+  }
+};
 
   const remove = async () => {
     if (intern.role === "HR") {
@@ -120,18 +127,18 @@ export default function InternDetailsModal({ intern, onClose, onDeleted }) {
                 <User size={12} className="text-[#6c5ce7]" /> Current Team Lead
               </div>
               <p className="text-base font-medium flex items-center gap-2">
-                {intern.teamlead ? (
-                  <>
-                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                    {intern.teamlead}
-                  </>
-                ) : (
-                  <span className="text-gray-400 text-sm flex items-center gap-1.5">
-                    <AlertCircle size={14} className="text-yellow-500" />
-                    Not Assigned
-                  </span>
-                )}
-              </p>
+  {intern.teamlead ? (
+    <>
+      <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+      {intern.teamlead}
+    </>
+  ) : (
+    <span className="text-gray-400 text-sm flex items-center gap-1.5">
+      <AlertCircle size={14} className="text-yellow-500" />
+      Not Assigned
+    </span>
+  )}
+</p>
             </div>
           </div>
         )}

@@ -25,6 +25,7 @@ import TeamLeadDashboard from "./pages/TeamLead/TeamLeadDashboard";
 import CreateProject from "./pages/TeamLead/CreateProject";
 import ReviewSubmission from "./pages/TeamLead/ReviewSubmission";
 import TeamLeadNotifications from "./pages/TeamLead/TeamLeadNotifications";
+import TeamLeadInterns from "./pages/TeamLead/TeamLeadInterns";
 import TeamLeadProfile from "./pages/TeamLead/TeamLeadProfile";
 import InternDashboard from "./pages/Intern/InternDashboard";
 import InternLayout from "./layout/InternLayout";
@@ -36,7 +37,8 @@ import InternProfile from "./pages/Intern/InternProfile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ViewEmployees from "./pages/Ceo/ViewEmployees";
-import HrViewEmployees from "./pages/hr/HrViewEmployees";
+import HrViewEmployees from "./pages/Hr/HrViewEmployees";
+import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 
 
 export default function App(){
@@ -66,6 +68,14 @@ export default function App(){
           <Route path="add-employee" element={<AddEmployee/>}/>
           <Route path="profile" element={<Profile/>}/>
         </Route>
+        <Route
+  path="/superadmin"
+  element={
+    <ProtectedRoute role="SUPER_ADMIN">
+      <SuperAdminDashboard />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ⭐ HR ROUTES */}
         <Route
@@ -97,6 +107,7 @@ export default function App(){
           <Route index element={<TeamLeadDashboard/>}/>
           <Route path="create-project" element={<CreateProject/>}/>
           <Route path="review" element={<ReviewSubmission />} />
+          <Route path="/teamlead/interns" element={<TeamLeadInterns />} />
           <Route path="notifications" element={<TeamLeadNotifications />} />
           <Route path="profile" element={<TeamLeadProfile />} />
         </Route>

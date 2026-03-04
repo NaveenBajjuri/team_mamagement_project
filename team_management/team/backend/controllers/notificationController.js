@@ -19,7 +19,24 @@ export const getNotifications = async (req, res) => {
     res.status(500).json({ message: "Fetch error" });
   }
 };
+export const markAllAsRead = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
+    await pool.query(
+      `UPDATE notifications 
+       SET is_read = true 
+       WHERE user_id = $1`,
+      [userId]
+    );
+
+    res.json({ message: "All notifications marked as read" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 /* =========================
    MARK AS READ
 ========================= */

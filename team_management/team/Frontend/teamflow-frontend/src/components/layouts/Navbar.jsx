@@ -32,52 +32,37 @@ export default function Navbar() {
   }, []);
 
   // Function to mark a single notification as read
-  const markAsRead = async (notificationId) => {
-    try {
-      // Call API to mark as read
-      await api.patch(`/notifications/${notificationId}/read`);
-      
-      // Update local state
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification =>
-          notification.id === notificationId
-            ? { ...notification, is_read: true }
-            : notification
-        )
-      );
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  };
+ const markAsRead = async (notificationId) => {
+  try {
+    await api.put(`/notifications/read/${notificationId}`);
+
+    const res = await api.get("/notifications");
+    setNotifications(res.data);
+
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+  }
+};
 
   // Function to mark all notifications as read
   const markAllAsRead = async () => {
-    try {
-      // Call API to mark all as read
-      await api.patch("/notifications/mark-all-read");
-      
-      // Update local state - set all notifications to read
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification => ({
-          ...notification,
-          is_read: true
-        }))
-      );
-      
-      // Keep the dropdown open so user can see the updated state
-      // Don't close it automatically
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error);
-    }
-  };
+  try {
+    await api.put("/notifications/mark-all-read");
+
+    const res = await api.get("/notifications");
+    setNotifications(res.data);
+
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+  }
+};
 
   // Handle notification click
   const handleNotificationClick = async (notification) => {
     // If notification is unread, mark it as read
-    if (!notification.is_read) {
-      await markAsRead(notification.id);
-    }
-    
+   if (notification.is_read === false) {
+  await markAsRead(notification.id);
+}
     // Close the notification dropdown
     setBellOpen(false);
     

@@ -122,19 +122,24 @@ export const findUserProfileById = async (id) => {
 };
 
 export const fetchHRInterns = () =>
-  pool.query(`
-    SELECT
+  pool.query(
+    `
+    SELECT 
       i.id,
       i.name,
       i.email,
       i.created_at,
       i.team_lead_id,
-      tl.name AS team_lead_name
+      tl.name AS teamlead
     FROM users i
-    LEFT JOIN users tl ON i.team_lead_id = tl.id
-    WHERE i.role=$1
-    ORDER BY i.created_at DESC
-  `, [ROLES.INTERN]);
+    LEFT JOIN users tl
+      ON i.team_lead_id = tl.id
+      AND tl.role = $2
+    WHERE i.role = $1
+    ORDER BY i.name
+    `,
+    [ROLES.INTERN, ROLES.TEAM_LEAD]
+  );
 
   export const fetchInternDetails = (id) =>
   pool.query(`
@@ -164,15 +169,36 @@ export const fetchHRInterns = () =>
 
  export const fetchInternsByTeamLead = (teamLeadId) =>
   pool.query(
-    `SELECT id,name,email
-     FROM users
-     WHERE role=$1 AND team_lead_id=$2`,
-    ["INTERN", teamLeadId]
+    `
+    SELECT 
+      i.id,
+      i.name,
+      i.email,
+      i.created_at,
+      COUNT(p.id) AS project_count
+    FROM users i
+    LEFT JOIN projects p 
+      ON p.intern_id = i.id
+    WHERE i.role = $1
+      AND i.team_lead_id = $2
+    GROUP BY i.id
+    ORDER BY i.name
+    `,
+    [ROLES.INTERN, teamLeadId]
   );
  
  export const fetchInternTeamLead = (internId) =>
   pool.query(
-    `SELECT team_lead_id,name FROM users WHERE id=$1`,
+    `
+    SELECT 
+      i.team_lead_id,
+      tl.name AS name,
+      tl.email AS email
+    FROM users i
+    LEFT JOIN users tl
+      ON i.team_lead_id = tl.id
+    WHERE i.id = $1
+    `,
     [internId]
   );
   export const fetchHRs = () =>

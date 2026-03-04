@@ -47,6 +47,12 @@ export const updateSubmissionStatus = (submissionId, status, feedback) =>
      RETURNING *`,
     [status, feedback, submissionId]
   );
+export const fetchInternsByTeamLead = (teamLeadId) =>
+  pool.query(
+    `SELECT * FROM users
+     WHERE role='INTERN' AND team_lead_id=$1`,
+    [teamLeadId]
+  );
 
 /* GET SUBMISSION WITH PROJECT */
 export const findSubmissionWithProject = (submissionId) =>

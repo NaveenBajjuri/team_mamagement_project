@@ -39,6 +39,7 @@ export default function ReviewSubmission() {
   useEffect(() => {
     fetchSubs();
   }, []);
+  const [pdfViewer, setPdfViewer] = useState(null);
 
   const review = async (id, status) => {
     await axios.post(
@@ -79,6 +80,60 @@ export default function ReviewSubmission() {
     setFeedbackModal(false);
     fetchSubs();
   };
+  const preview = async (file) => {
+  if (!file) return;
+
+  try {
+    const cleaned = file.replace(/^uploads\//, "");
+
+    const response = await fetch(
+      `http://localhost:5000/uploads/${cleaned}`
+    );
+
+    if (!response.ok) {
+      console.error("Preview failed:", response.status);
+      return;
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    setPdfViewer(blobUrl);
+  } catch (err) {
+    console.error("Preview error:", err);
+  }
+};
+
+const download = async (file) => {
+  if (!file) return;
+
+  try {
+    const cleaned = file.replace(/^uploads\//, "");
+
+    const response = await fetch(
+      `http://localhost:5000/uploads/${cleaned}`
+    );
+
+    if (!response.ok) {
+      console.error("Download failed:", response.status);
+      return;
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = cleaned;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    console.error("Download error:", err);
+  }
+};
 
   const getStatusIcon = (status) => {
     switch(status) {
@@ -210,26 +265,21 @@ export default function ReviewSubmission() {
               {/* Actions */}
               <div className="flex flex-wrap gap-3 mt-6">
                 {/* Preview Button */}
-                <a 
-                  href={`http://localhost:5000/uploads/${s.pdf_url}`} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="group/btn px-4 py-2.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3748] text-white transition-all duration-300 flex items-center gap-2 border border-white/5 hover:border-white/10"
-                >
-                  <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                  Preview
-                </a>
-
-                {/* Download Button */}
-                <a 
-                  href={`http://localhost:5000/uploads/${s.pdf_url}`} 
-                  download 
-                  className="group/btn px-4 py-2.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3748] text-white transition-all duration-300 flex items-center gap-2 border border-white/5 hover:border-white/10"
-                >
-                  <Download className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                  Download
-                </a>
-
+          <button
+           onClick={() => preview(s.pdf_url)}
+            className="group/btn px-4 py-2.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3748] text-white transition-all duration-300 flex items-center gap-2 border border-white/5 hover:border-white/10"
+            >
+          <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+           Preview
+          </button>
+          {/* Download Button */}
+          <button
+            onClick={() => download(s.pdf_url)}
+              className="group/btn px-4 py-2.5 rounded-xl bg-[#1e293b] hover:bg-[#2d3748] text-white transition-all duration-300 flex items-center gap-2 border border-white/5 hover:border-white/10"
+              >
+            <Download className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+             Download
+            </button>
                 {/* Reject Button */}
                 <button 
                   onClick={() => review(s.id, "Rejected")} 
@@ -320,7 +370,7 @@ export default function ReviewSubmission() {
                 placeholder="Write your feedback here..."
               />
             </div>
-
+        
             {/* Modal Footer */}
             <div className="flex justify-end gap-3 p-6 pt-0">
               <button 
@@ -340,6 +390,25 @@ export default function ReviewSubmission() {
           </div>
         </div>
       )}
+      {pdfViewer && (
+  <div
+    className="fixed inset-0 bg-black/70 flex justify-center items-center z-[60]"
+    onClick={() => setPdfViewer(null)}
+  >
+    <div
+      className="bg-[#1f1b36] w-[85vw] h-[85vh] rounded-2xl overflow-hidden shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <iframe
+        src={pdfViewer}
+        className="w-full h-full"
+        title="PDF Preview"
+      />
     </div>
+  </div>
+)}
+    </div>
+    
   );
 }
+

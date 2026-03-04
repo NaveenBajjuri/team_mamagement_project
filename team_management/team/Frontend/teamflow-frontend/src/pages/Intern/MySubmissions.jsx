@@ -7,10 +7,8 @@ export default function MySubmissions() {
   const [filter, setFilter] = useState("ALL");
   const [loading, setLoading] = useState(true);
 
-  /* ⭐ NEW PDF STATE */
   const [pdfViewer, setPdfViewer] = useState(null);
 
-  /* ⭐ FEEDBACK STATES */
   const [viewFeedback, setViewFeedback] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState(null);
@@ -51,7 +49,7 @@ export default function MySubmissions() {
   };
 
   /* ===============================
-     ✅ SECURE PREVIEW (BLOB)
+     PDF PREVIEW
   =============================== */
   const previewPdf = async (file) => {
     if (!file) return;
@@ -79,7 +77,7 @@ export default function MySubmissions() {
   };
 
   /* ===============================
-     ✅ SECURE DOWNLOAD (BLOB)
+     PDF DOWNLOAD
   =============================== */
   const downloadPdf = async (file) => {
     if (!file) return;
@@ -144,61 +142,70 @@ export default function MySubmissions() {
       {/* TABLE */}
       <div className="bg-[#1f1b36] rounded-2xl border border-white/5 shadow-lg overflow-hidden">
         <div className="divide-y divide-white/5">
-          {filtered.map((s) => (
-            <div key={s.id} className="group bg-[#2c274b] p-5">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {filtered.map((s) => {
+            
+            // 🔥 SAFE FEEDBACK FIELD SUPPORT
+            const feedbackTextValue =
+              s.feedback || s.review_comment || s.teamlead_feedback || "";
 
-                <div className="flex-1">
-                  <p className="font-semibold">
-                    {s.title || "Untitled Submission"}
-                  </p>
-                </div>
+            return (
+              <div key={s.id} className="group bg-[#2c274b] p-5">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
 
-                <div className="flex items-center gap-2">
-                  <StatusTag status={s.status} icon={getStatusIcon(s.status)} />
-                </div>
+                  <div className="flex-1">
+                    <p className="font-semibold">
+                      {s.title || "Untitled Submission"}
+                    </p>
+                  </div>
 
-                {/* ⭐ UPDATED ACTIONS */}
-                <div className="flex items-center gap-2">
-                  {s.pdf_url && (
-                    <>
+                  <div className="flex items-center gap-2">
+                    <StatusTag status={s.status} icon={getStatusIcon(s.status)} />
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="flex items-center gap-2">
+
+                    {s.pdf_url && (
+                      <>
+                        <button
+                          onClick={() => previewPdf(s.pdf_url)}
+                          className="p-2 bg-[#1f1b36] rounded-lg hover:bg-[#8b7cf6]/10 transition-all"
+                        >
+                          <Eye size={18} className="text-[#8b7cf6]" />
+                        </button>
+
+                        <button
+                          onClick={() => downloadPdf(s.pdf_url)}
+                          className="p-2 bg-[#1f1b36] rounded-lg hover:bg-[#8b7cf6]/10 transition-all"
+                        >
+                          <Download size={18} className="text-[#8b7cf6]" />
+                        </button>
+                      </>
+                    )}
+
+                    {feedbackTextValue && (
                       <button
-                        onClick={() => previewPdf(s.pdf_url)}
-                        className="p-2 bg-[#1f1b36] rounded-lg hover:bg-[#8b7cf6]/10 transition-all"
+                        onClick={() => {
+                          setFeedbackMsg(feedbackTextValue);
+                          setSelectedSubmission(s);
+                          setViewFeedback(true);
+                        }}
+                        className="px-4 py-2 bg-[#8b7cf6]/20 rounded-lg"
                       >
-                        <Eye size={18} className="text-[#8b7cf6]" />
+                        Feedback
                       </button>
+                    )}
 
-                      <button
-                        onClick={() => downloadPdf(s.pdf_url)}
-                        className="p-2 bg-[#1f1b36] rounded-lg hover:bg-[#8b7cf6]/10 transition-all"
-                      >
-                        <Download size={18} className="text-[#8b7cf6]" />
-                      </button>
-                    </>
-                  )}
+                  </div>
 
-                  {s.feedback && (
-                    <button
-                      onClick={() => {
-                        setFeedbackMsg(s.feedback);
-                        setSelectedSubmission(s);
-                        setViewFeedback(true);
-                      }}
-                      className="px-4 py-2 bg-[#8b7cf6]/20 rounded-lg"
-                    >
-                      Feedback
-                    </button>
-                  )}
                 </div>
-
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* ⭐ PDF MODAL */}
+      {/* PDF MODAL */}
       {pdfViewer && (
         <div
           className="fixed inset-0 bg-black/70 flex justify-center items-center z-[60]"
@@ -224,7 +231,7 @@ export default function MySubmissions() {
         </div>
       )}
 
-      {/* ⭐ FEEDBACK MODAL (UNCHANGED) */}
+      {/* FEEDBACK MODAL */}
       {viewFeedback && selectedSubmission && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-[#1f1b36] rounded-2xl border border-white/5 w-full max-w-md shadow-2xl">

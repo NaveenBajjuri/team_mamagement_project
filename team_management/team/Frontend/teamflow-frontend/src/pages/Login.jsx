@@ -38,12 +38,19 @@ export default function Login() {
       localStorage.setItem("token", token);
 
       const role = res.data.role || res.data.user?.role;
-      localStorage.setItem("role", role);
 
-      if (role === "CEO") navigate("/ceo");
-      else if (role === "HR") navigate("/hr");
-      else if (role === "TEAM_LEAD") navigate("/teamlead");
-      else navigate("/intern");
+if (!role) {
+  setError("Role not received");
+  return;
+}
+
+localStorage.setItem("role", role);
+
+if (role === "SUPER_ADMIN") navigate("/superadmin");
+else if (role === "CEO") navigate("/ceo");
+else if (role === "HR") navigate("/hr");
+else if (role === "TEAM_LEAD") navigate("/teamlead");
+else navigate("/intern");
 
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");

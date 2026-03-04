@@ -10,18 +10,18 @@ export default function ViewEmployees() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    fetchInterns();
-  }, []);
+  fetchInterns();
+}, []);
 
-  const fetchInterns = async () => {
-    try {
-      const res = await api.get("/hr/interns");
-      setInterns(res.data);
-    } catch (err) {
-      console.error("Failed to fetch interns", err);
-    }
-  };
-
+const fetchInterns = async () => {
+  try {
+    const res = await api.get("/hr/interns");
+    console.log("HR interns response:", res.data);  // 👈 ADD THIS
+    setInterns(res.data);
+  } catch (err) {
+    console.error("Failed to fetch interns", err);
+  }
+};
   return (
     <div className="space-y-6 animate-fadeIn p-6">
 

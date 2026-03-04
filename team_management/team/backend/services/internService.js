@@ -91,18 +91,31 @@ export const getProgressService = async (internId) => {
     approved,
     ongoingProjects,
     submissionConsistency,
-    timeline
+    timeline,
+    internTL
   ] = await Promise.all([
     countInternSubmissions(internId),
     countApprovedSubmissions(internId),
     countOngoingProjects(internId),
     fetchSubmissionConsistency(internId),
-    fetchTimeline(internId)
+    fetchTimeline(internId),
+    fetchInternTeamLead(internId)
   ]);
 
   const totalCount = parseInt(total.rows[0].count);
   const approvedCount = parseInt(approved.rows[0].count);
   const ongoingCount = parseInt(ongoingProjects.rows[0].count);
+
+  // ⭐ SAFELY EXTRACT TEAM LEAD DATA
+  let teamLead = null;
+
+  if (internTL.rows.length && internTL.rows[0].team_lead_id) {
+    teamLead = {
+      id: internTL.rows[0].team_lead_id,
+      name: internTL.rows[0].name,      // MUST match SQL alias
+      email: internTL.rows[0].email    // MUST match SQL alias
+    };
+  }
 
   return {
     summary: {
@@ -115,6 +128,7 @@ export const getProgressService = async (internId) => {
           : Math.round((approvedCount / totalCount) * 100)
     },
     submissionConsistency: submissionConsistency.rows,
-    timelineTracker: timeline.rows
+    timelineTracker: timeline.rows,
+    teamLead
   };
 };

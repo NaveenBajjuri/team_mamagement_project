@@ -6,7 +6,7 @@ export default function Projects() {
   const [selected, setSelected] = useState(null);
   const [details, setDetails] = useState(null);
 
-  /* ⭐ NEW STATE FOR PDF MODAL */
+  /* ⭐ KEEPING PDF STATE (but CEO won't use it now) */
   const [pdfViewer, setPdfViewer] = useState(null);
 
   useEffect(() => {
@@ -22,36 +22,6 @@ export default function Projects() {
     const res = await api.get(`/ceo/project-details/${id}`);
     setDetails(res.data);
     setSelected(id);
-  };
-
-  /* ===============================
-     ✅ SECURE BLOB-BASED PREVIEW
-     (ONLY CHANGE MADE HERE)
-  =============================== */
-  const previewPdf = async (file) => {
-    if (!file) return;
-
-    try {
-      const cleaned = file.replace(/^uploads\//, "");
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `http://localhost:5000/uploads/${cleaned}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-
-      setPdfViewer(blobUrl);
-
-    } catch (err) {
-      console.error("PDF preview failed:", err);
-    }
   };
 
   return (
@@ -142,78 +112,51 @@ export default function Projects() {
               </button>
             </div>
 
+            {/* ✅ CEO SUMMARY VIEW (LOGIC CHANGED ONLY) */}
             <div className="space-y-3 pr-2">
-              {details.submissions?.length === 0 && (
-                <p className="text-gray-400">No submissions yet</p>
-              )}
 
-              {details.submissions?.map((s) => (
-                <div
-                  key={s.id}
-                  className="bg-[#2c274b] p-4 rounded-xl border border-white/5 space-y-2"
-                >
-                  <div className="flex justify-between">
-                    <p className="font-semibold">{s.title}</p>
+              {(() => {
+                const submissions = details.submissions || [];
 
-                    <span className={`text-xs px-2 py-1 rounded-lg ${
-                      s.status === "Approved"
-                        ? "bg-green-500/20 text-green-400"
-                        : s.status === "Rejected"
-                        ? "bg-red-500/20 text-red-400"
-                        : "bg-yellow-500/20 text-yellow-400"
-                    }`}>
-                      {s.status}
-                    </span>
+                const total = submissions.length;
+                const approved = submissions.filter(
+                  s => s.status === "Approved"
+                ).length;
+
+                const rejected = submissions.filter(
+                  s => s.status === "Rejected"
+                ).length;
+
+                const pending = submissions.filter(
+                  s => s.status === "Pending"
+                ).length;
+
+                const progress =
+                  total === 0
+                    ? 0
+                    : Math.round((approved / total) * 100);
+
+                return (
+                  <div className="bg-[#2c274b] p-4 rounded-xl border border-white/5 space-y-3">
+
+                    <p><strong>Intern:</strong> {details.project?.intern}</p>
+                    <p><strong>Team Lead:</strong> {details.project?.teamlead}</p>
+                    <p><strong>Status:</strong> {details.project?.status}</p>
+                    <p><strong>Deadline:</strong> {new Date(details.project?.deadline).toLocaleDateString()}</p>
+
+                    <div className="border-t border-white/10 pt-3 space-y-1">
+                      <p><strong>Total Submissions:</strong> {total}</p>
+                      <p><strong>Approved:</strong> {approved}</p>
+                      <p><strong>Rejected:</strong> {rejected}</p>
+                      <p><strong>Pending:</strong> {pending}</p>
+                      <p><strong>Completion:</strong> {progress}%</p>
+                    </div>
+
                   </div>
+                );
+              })()}
 
-                  <p className="text-xs text-gray-400">
-                    Submitted: {new Date(s.submitted_at).toLocaleDateString()}
-                  </p>
-
-                  {s.feedback && (
-                    <p className="text-xs text-gray-300 bg-black/20 p-2 rounded-lg">
-                      Feedback: {s.feedback}
-                    </p>
-                  )}
-
-                  {/* ⭐ ONLY PDF PART CHANGED */}
-                  {s.pdf_url && (
-                    <button
-                      onClick={() => previewPdf(s.pdf_url)}
-                      className="text-xs text-[#8b7cf6] hover:underline inline-flex items-center gap-1"
-                    >
-                      📄 View PDF →
-                    </button>
-                  )}
-                </div>
-              ))}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ⭐ PDF MODAL */}
-      {pdfViewer && (
-        <div
-          className="fixed inset-0 bg-black/70 flex justify-center items-center z-[60] animate-fadeIn"
-          onClick={() => setPdfViewer(null)}
-        >
-          <div
-            className="bg-[#1f1b36] w-[80vw] h-[85vh] rounded-2xl overflow-hidden relative border border-white/10 animate-scaleIn"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setPdfViewer(null)}
-              className="absolute top-3 right-3 z-10 bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20"
-            >
-              ✕
-            </button>
-
-            <iframe
-              src={pdfViewer}
-              title="PDF Viewer"
-              className="w-full h-full"
-            />
           </div>
         </div>
       )}
